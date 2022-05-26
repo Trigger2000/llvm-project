@@ -95,6 +95,7 @@ public:
     spir64,         // SPIR: standard portable IR for OpenCL 64-bit version
     kalimba,        // Kalimba: generic kalimba
     shave,          // SHAVE: Movidius vector VLIW processors
+    sim,            // sim: educational target
     lanai,          // Lanai: Lanai 32-bit
     wasm32,         // WebAssembly with 32-bit pointers
     wasm64,         // WebAssembly with 64-bit pointers
@@ -777,6 +778,11 @@ public:
   /// Tests whether the target is SystemZ.
   bool isSystemZ() const {
     return getArch() == Triple::systemz;
+  }
+
+  /// Tests whether the target is sim
+  bool isSim() const {
+    return getArch() == Triple::sim;
   }
 
   /// Tests whether the target is x86 (32- or 64-bit).
