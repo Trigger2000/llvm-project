@@ -1,5 +1,5 @@
-#include "USimMachineFunctionInfo.h"
+#include "SimMachineFunctionInfo.h"
 
 using namespace llvm;
 
-void USimFunctionInfo::anchor() {}
+void SimFunctionInfo::anchor() {}

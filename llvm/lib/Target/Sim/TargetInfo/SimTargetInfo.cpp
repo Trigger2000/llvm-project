@@ -1,7 +1,7 @@
 #include "Sim.h"
 #include "llvm/IR/Module.h"
 #include "TargetInfo/SimTargetInfo.h"
-#include "llvm/MC/TargetRegistry.h"
+#include "llvm/Support/TargetRegistry.h"
 
 using namespace llvm;
 

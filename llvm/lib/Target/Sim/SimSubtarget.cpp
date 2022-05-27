@@ -1,6 +1,6 @@
 #include "SimSubtarget.h"
 #include "Sim.h"
-#include "llvm/MC/TargetRegistry.h"
+#include "llvm/Support/TargetRegistry.h"
 #include "llvm/Support/ErrorHandling.h"
 
 using namespace llvm;

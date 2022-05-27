@@ -26,16 +26,15 @@ add_public_tablegen_target(SimCommonTableGen)
 # SimCodeGen should match with LLVMBuild.txt SimCodeGen
 add_llvm_target(SimCodeGen
   SimTargetMachine.cpp
-  SimTargetObjectFile.cpp
   SimMachineFunctionInfo.cpp
   SimFrameLowering.cpp
   SimSubtarget.cpp
   SimISelLowering.cpp
   SimAsmPrinter.cpp
   SimInstrInfo.cpp
+  SimMCInstLower.cpp
   SimRegisterInfo.cpp
-  SimISelDAGToDAG.cpp
-  Sim.cpp
+  SimISelDagToDag.cpp
 
   # TODO: remove
   # Analysis

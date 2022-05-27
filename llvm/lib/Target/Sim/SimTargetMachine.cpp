@@ -1,72 +1,54 @@
-#include "Sim.h"
+//===----------------------------------------------------------------------===//
+//
+// Implements the info about Sim target spec.
+//
+//===----------------------------------------------------------------------===//
+
 #include "SimTargetMachine.h"
+#include "Sim.h"
+//#include "SimTargetTransformInfo.h"
 #include "TargetInfo/SimTargetInfo.h"
-#include "SimSubtarget.h"
-#include "SimTargetObjectFile.h"
-#include "TargetInfo/SimTargetInfo.h"
+#include "llvm/CodeGen/Passes.h"
+#include "llvm/CodeGen/TargetLoweringObjectFileImpl.h"
+#include "llvm/CodeGen/TargetPassConfig.h"
 #include "llvm/IR/Attributes.h"
 #include "llvm/IR/Function.h"
-#include "llvm/Support/CodeGen.h"
-#include "llvm/CodeGen/Passes.h"
-#include "llvm/CodeGen/TargetPassConfig.h"
-#include "llvm/MC/TargetRegistry.h"
-#include "llvm/Target/TargetOptions.h"
 #include "llvm/IR/LegacyPassManager.h"
-
-using namespace llvm;
+#include "llvm/Support/TargetRegistry.h"
+#include "llvm/Support/CodeGen.h"
+#include "llvm/Support/ErrorHandling.h"
+#include "llvm/Target/TargetOptions.h"
 
 #define DEBUG_TYPE "Sim"
 
-static std::string computeDataLayout() {
-  // little endian
-  std::string Ret = "e-m:e";
+using namespace llvm;
 
-  // 32bit pointers.
-  Ret += "-p:32:32";
-
-  // Alignments for 1/8/16/32 bit integers.
-  Ret += "-i1:8:32";
-  Ret += "-i8:8:32";
-  Ret += "-i16:16:32";
-  Ret += "-i32:32:32";
-
-  // Break 64 bit integers into two
-  Ret += "-i64:32";
-
-  Ret += "-f32:32:32";
-  Ret += "-f64:32";
-
-  // Alignment for an object of aggregate type
-  Ret += "-a:0:32";
-
-  // Native integer widths for the target CPU in bits
-  Ret += "-n32";
-
-  return Ret;
-}
-
-static Reloc::Model getEffectiveSimRelocModel(Optional<Reloc::Model> RM) {
+static Reloc::Model getRelocModel(Optional<Reloc::Model> RM) {
   return RM.getValueOr(Reloc::Static);
 }
 
-static CodeModel::Model getEffectiveSimCodeModel() {
-  return CodeModel::Small;
-}
-
-SimTargetMachine::SimTargetMachine(
-    const Target &T, const Triple &TT, StringRef CPU, StringRef FS,
-    const TargetOptions &Options, Optional<Reloc::Model> RM,
-    Optional<CodeModel::Model> CM, CodeGenOpt::Level OL, bool JIT)
-    : LLVMTargetMachine(T, computeDataLayout(), TT, CPU, FS, Options,
-                        getEffectiveSimRelocModel(RM),
-                        getEffectiveSimCodeModel(),
-                        OL),
-      TLOF(std::make_unique<SimTargetObjectFile>()),
+/// SimTargetMachine ctor - Create an ILP32 Architecture model
+SimTargetMachine::SimTargetMachine(const Target &T, const Triple &TT,
+                                     StringRef CPU, StringRef FS,
+                                     const TargetOptions &Options,
+                                     Optional<Reloc::Model> RM,
+                                     Optional<CodeModel::Model> CM,
+                                     CodeGenOpt::Level OL, bool JIT)
+    : LLVMTargetMachine(T,
+                        "e-m:e-p:32:32-i1:8:32-i8:8:32-i16:16:32-i32:32:32-"
+                        "f32:32:32-i64:32-f64:32-a:0:32-n32",
+                        TT, CPU, FS, Options, getRelocModel(RM),
+                        getEffectiveCodeModel(CM, CodeModel::Small), OL),
+      TLOF(std::make_unique<TargetLoweringObjectFileELF>()),
       Subtarget(TT, std::string(CPU), std::string(FS), *this) {
   initAsmInfo();
 }
 
+SimTargetMachine::~SimTargetMachine() = default;
+
 namespace {
+
+/// Sim Code Generator Pass Configuration Options.
 class SimPassConfig : public TargetPassConfig {
 public:
   SimPassConfig(SimTargetMachine &TM, PassManagerBase &PM)
@@ -76,18 +58,34 @@ public:
     return getTM<SimTargetMachine>();
   }
 
-  bool addInstSelector() override {
-    addPass(createSimISelDag(getSimTargetMachine(), getOptLevel()));
-    return false;
-  }
+  bool addInstSelector() override;
+  // void addPreEmitPass() override;
+  // void addPreRegAlloc() override;
 };
-}
+
+} // end anonymous namespace
 
 TargetPassConfig *SimTargetMachine::createPassConfig(PassManagerBase &PM) {
   return new SimPassConfig(*this, PM);
 }
 
-extern "C" void LLVMInitializeSimTarget() {
-  // Register the target.
-  llvm::RegisterTargetMachine<llvm::SimTargetMachine> X(getTheSimTarget());
+bool SimPassConfig::addInstSelector() {
+  addPass(createSimISelDag(getSimTargetMachine(), getOptLevel()));
+  return false;
 }
+
+// void SimPassConfig::addPreEmitPass() { llvm_unreachable(""); }
+
+// void SimPassConfig::addPreRegAlloc() { llvm_unreachable(""); }
+
+// Force static initialization.
+extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeSimTarget() {
+  RegisterTargetMachine<SimTargetMachine> X(getTheSimTarget());
+}
+
+#if 0
+TargetTransformInfo
+SimTargetMachine::getTargetTransformInfo(const Function &F) {
+  return TargetTransformInfo(SimTTIImpl(this, F));
+}
+#endif
