@@ -15,6 +15,7 @@ public:
                    CodeGenOpt::Level OL, bool JIT);
   ~SimTargetMachine() override = default;
 
+    // SimSubtarget holds configuration for the code generation, such as which features are enabled.
   const SimSubtarget *getSubtargetImpl() const {
     return &Subtarget;
   }
@@ -27,15 +28,6 @@ public:
   TargetLoweringObjectFile *getObjFileLowering() const override {
     return TLOF.get();
   }
-
-  // bool
-  // addPassesToEmitFile(PassManagerBase &, raw_pwrite_stream &,
-  //                     raw_pwrite_stream *, CodeGenFileType,
-  //                     bool /*DisableVerify*/ = true,
-  //                     MachineModuleInfoWrapperPass *MMIWP = nullptr) override {
-  //   return false;
-  // }
-
 private:
   std::unique_ptr<TargetLoweringObjectFile> TLOF;
   SimSubtarget Subtarget;

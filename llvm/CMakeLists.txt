@@ -315,6 +315,7 @@ set(LLVM_ALL_TARGETS
   NVPTX
   PowerPC
   RISCV
+  Sim
   Sparc
   SystemZ
   WebAssembly
@@ -328,7 +329,7 @@ set(LLVM_TARGETS_WITH_JIT X86 PowerPC AArch64 ARM Mips SystemZ)
 set(LLVM_TARGETS_TO_BUILD "all"
     CACHE STRING "Semicolon-separated list of targets to build, or \"all\".")
 
-set(LLVM_EXPERIMENTAL_TARGETS_TO_BUILD ""
+set(LLVM_EXPERIMENTAL_TARGETS_TO_BUILD "Sim"
   CACHE STRING "Semicolon-separated list of experimental targets to build.")
 
 option(BUILD_SHARED_LIBS
