@@ -132,12 +132,12 @@ StringRef llvm::object::getELFRelocationTypeName(uint32_t Machine,
     }
     break;
   case ELF::EM_SIM:
--   switch (Type) {
--   default:
--     llvm_unreachable("");
--     break;
--   }
--   break;
+    switch (Type) {
+    default:
+      llvm_unreachable("");
+      break;
+    }
+    break;
   case ELF::EM_AMDGPU:
     switch (Type) {
 #include "llvm/BinaryFormat/ELFRelocs/AMDGPU.def"
