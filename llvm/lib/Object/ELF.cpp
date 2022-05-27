@@ -9,6 +9,7 @@
 #include "llvm/Object/ELF.h"
 #include "llvm/BinaryFormat/ELF.h"
 #include "llvm/Support/DataExtractor.h"
+#include "llvm/Support/ErrorHandling.h"
 
 using namespace llvm;
 using namespace object;
